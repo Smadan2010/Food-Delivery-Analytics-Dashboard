@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import mysql.connector
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
@@ -183,58 +182,17 @@ label {
 """, unsafe_allow_html=True)
 
 # =========================================================
-# DATABASE CONNECTION
-# =========================================================
-
-@st.cache_data
-def load_data():
-    df = pd.read_csv("Final_dataset.csv")
-    df['order_date'] = pd.to_datetime(df['order_date'])
-    return df
-
-df = load_data()
-
-conn = get_connection()
-
-# =========================================================
 # LOAD DATA
 # =========================================================
 
 @st.cache_data(show_spinner=False)
 def load_data():
 
-    query = """
-    SELECT 
-        o.*, 
-        c.age,
-        c.gender,
-        c.city,
-        c.area,
-        r.restaurant_name,
-        r.cuisine_type,
-        d.delivery_time_min,
-        d.distance_km,
-        d.delivery_rating,
-        d.delivery_performance,
-        d.restaurant_rating
-
-    FROM orders o
-
-    LEFT JOIN customers c
-        ON o.customer_id = c.customer_id
-
-    LEFT JOIN restaurants r
-        ON o.restaurant_id = r.restaurant_id
-
-    LEFT JOIN deliveries d
-        ON o.order_id = d.order_id
-    """
-
-    df = pd.read_sql(query, conn)
+    df = pd.read_csv("Final_dataset.csv")
 
     df['order_date'] = pd.to_datetime(df['order_date'])
 
-    # Remove accidental duplicate rows
+    # Remove duplicate rows
     df = df.drop_duplicates()
 
     return df
@@ -316,8 +274,7 @@ filtered_df = df[
     (df['city'].isin(selected_cities)) &
     (df['cuisine_type'].isin(selected_cuisines)) &
     (df['order_status'].isin(selected_status))
-]
-
+].copy()
 # Remove unrealistic order values
 
 
