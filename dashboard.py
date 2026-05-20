@@ -190,8 +190,11 @@ def load_data():
 
     df = pd.read_csv("Final_dataset.csv")
 
-    df['order_date'] = pd.to_datetime(df['order_date'])
+    # Clean column names
+    df.columns = df.columns.str.strip().str.lower()
 
+    df['order_date'] = pd.to_datetime(df['order_date'])
+    
     # Remove duplicate rows
     df = df.drop_duplicates()
 
